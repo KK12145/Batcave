@@ -3,63 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wayne OS | Gabby's Terminal v16.0</title>
+    <title>Wayne OS | Gabby's Terminal v17.0</title>
     <style>
         :root {
             --accent: #00ffff; 
             --bg: #00050a; 
             --dim: rgba(0, 255, 255, 0.15);
-            --panel: rgba(0, 10, 20, 0.85);
-            --glow: 0 0 20px rgba(0, 255, 255, 0.2);
+            --panel: rgba(0, 12, 25, 0.9);
+            --glow: 0 0 25px rgba(0, 255, 255, 0.25);
         }
 
-        * { box-sizing: border-box; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        body { background: var(--bg); color: var(--accent); font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; transition: 0.3s ease; }
+        body { background: var(--bg); color: var(--accent); font-family: 'Inter', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
         /* 背景装饰 */
-        #bg-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(var(--dim) 1px, transparent 1px); background-size: 40px 40px; z-index: -1; }
-        .bat-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; opacity: 0.03; pointer-events: none; animation: pulse 10s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.02; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.05; transform: translate(-50%, -50%) scale(1.05); } }
+        #bg-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(var(--dim) 1px, transparent 1px); background-size: 45px 45px; z-index: -1; }
+        .bat-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 420px; opacity: 0.03; pointer-events: none; animation: pulse 12s infinite; }
+        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.02; } 50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.05; } }
 
-        /* 导航栏 */
-        nav {
-            height: 70px; border-bottom: 1px solid var(--dim); display: flex; align-items: center; padding: 0 40px; gap: 30px;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); z-index: 100;
-        }
-        .nav-btn { font-size: 0.7rem; letter-spacing: 3px; cursor: pointer; opacity: 0.5; padding: 10px 15px; border: 1px solid transparent; }
-        .nav-btn:hover, .nav-btn.active { opacity: 1; border-color: var(--accent); background: rgba(0, 255, 255, 0.1); }
+        /* 导航系统 */
+        nav { height: 75px; border-bottom: 1px solid var(--dim); display: flex; align-items: center; padding: 0 40px; gap: 30px; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); z-index: 100; }
+        .nav-btn { font-size: 0.75rem; letter-spacing: 4px; cursor: pointer; opacity: 0.4; padding: 12px 20px; border: 1px solid transparent; text-transform: uppercase; }
+        .nav-btn:hover, .nav-btn.active { opacity: 1; border-color: var(--accent); background: rgba(0, 255, 255, 0.1); box-shadow: inset 0 0 10px var(--accent); }
 
-        /* 视图系统 */
-        .view { display: none; height: calc(100vh - 70px); padding: 30px; grid-template-columns: 350px 1fr 350px; gap: 25px; }
+        /* 视图容器 */
+        .view { display: none; height: calc(100vh - 75px); padding: 35px; grid-template-columns: 360px 1fr 360px; gap: 30px; }
         .view.active { display: grid; }
 
-        /* 通用面板 */
-        .panel { background: var(--panel); border: 1px solid var(--dim); padding: 25px; display: flex; flex-direction: column; backdrop-filter: blur(20px); box-shadow: var(--glow); border-radius: 4px; }
-        h2 { font-size: 0.75rem; letter-spacing: 5px; border-bottom: 1px solid var(--dim); padding-bottom: 10px; margin: 0 0 20px 0; color: #fff; text-shadow: 0 0 5px var(--accent); }
+        /* 面板样式 */
+        .panel { background: var(--panel); border: 1px solid var(--dim); padding: 25px; display: flex; flex-direction: column; backdrop-filter: blur(25px); box-shadow: var(--glow); border-radius: 2px; }
+        h2 { font-size: 0.75rem; letter-spacing: 6px; border-bottom: 1px solid var(--dim); padding-bottom: 12px; margin: 0 0 20px 0; color: #fff; text-shadow: 0 0 8px var(--accent); }
 
-        /* UI 组件 */
-        input, select, button { background: rgba(0, 255, 255, 0.03); border: 1px solid var(--dim); color: var(--accent); padding: 12px; font-family: inherit; font-size: 0.8rem; outline: none; margin-bottom: 10px; }
-        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; letter-spacing: 1px; }
-        button:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+        /* 输入组件 */
+        input, select, button { background: rgba(0, 255, 255, 0.05); border: 1px solid var(--dim); color: var(--accent); padding: 12px; font-family: inherit; font-size: 0.85rem; outline: none; margin-bottom: 12px; }
+        input:focus { border-color: var(--accent); background: rgba(0, 255, 255, 0.1); }
+        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; letter-spacing: 2px; }
+        button:hover { background: #fff; box-shadow: 0 0 25px #fff; }
 
-        /* 沟通系统内容 */
-        #chat-flow { flex: 1; overflow-y: auto; padding-right: 10px; }
-        .msg { margin-bottom: 20px; font-size: 0.85rem; line-height: 1.6; }
+        /* 通讯信息 */
+        #chat-flow { flex: 1; overflow-y: auto; padding-right: 12px; }
+        .msg { margin-bottom: 22px; font-size: 0.9rem; line-height: 1.7; }
         .msg.bw { color: var(--accent); }
         .msg.user { color: #fff; text-align: right; }
-        .msg-ts { font-size: 0.6rem; opacity: 0.4; display: block; margin-bottom: 4px; }
+        .msg-ts { font-size: 0.65rem; opacity: 0.4; display: block; margin-bottom: 5px; }
 
-        /* 日历矩阵 */
-        #calendar-grid { grid-template-columns: 1fr; } /* 日历视图设为单列容器 */
-        .cal-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; flex: 1; }
-        .cal-cell { border: 1px solid var(--dim); padding: 10px; min-height: 110px; background: rgba(0, 255, 255, 0.01); position: relative; }
-        .cal-cell.today { border-color: var(--accent); background: rgba(0, 255, 255, 0.05); }
-        .cal-num { font-size: 1.1rem; font-weight: bold; opacity: 0.2; }
-        .cal-mark { font-size: 0.65rem; background: rgba(0, 255, 255, 0.1); border-left: 2px solid var(--accent); padding: 2px 5px; margin-top: 5px; display: block; }
+        /* 日历布局 */
+        .cal-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; flex: 1; }
+        .cal-cell { border: 1px solid var(--dim); padding: 12px; min-height: 120px; background: rgba(0, 255, 255, 0.01); position: relative; }
+        .cal-cell.today { border-color: var(--accent); background: rgba(0, 255, 255, 0.08); }
+        .cal-num { font-size: 1.2rem; font-weight: bold; opacity: 0.2; }
+        .cal-mark { font-size: 0.7rem; color: #fff; background: rgba(0, 255, 255, 0.15); border-left: 3px solid var(--accent); padding: 3px 8px; margin-top: 6px; display: block; }
 
-        #clock { font-size: 2.2rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
-
-        ::-webkit-scrollbar { width: 3px; }
+        #clock { font-size: 2.4rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 12px var(--accent); }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); }
     </style>
 </head>
@@ -77,44 +73,46 @@
 
 <div id="view-main" class="view active">
     <section class="panel">
-        <h2>MISSION_DEPLOY</h2>
-        <input type="text" id="tName" placeholder="任务代号 (OBJ_NAME)...">
+        <h2>TACTICAL_DEPLOY</h2>
+        <input type="text" id="tName" placeholder="任务代号 (OBJ_CODE)...">
         <input type="date" id="tDate">
-        <select id="tCycle">
-            <option value="once">ONCE (单次)</option>
-            <option value="1">DAILY (每日)</option>
-            <option value="3">3-DAYS (3日循环)</option>
+        <select id="tCycle" onchange="toggleCustom()">
+            <option value="once">ONCE (单次执行)</option>
+            <option value="1">DAILY (每日循环)</option>
+            <option value="3">3-DAYS (3日巡检)</option>
+            <option value="custom">CUSTOM (自定义循环)</option>
         </select>
-        <button onclick="deploy()">ACTIVATE MISSION</button>
-        <h2 style="margin-top:30px;">ACTIVE_LOGS</h2>
+        <input type="number" id="tCustomVal" placeholder="输入循环天数..." style="display:none;">
+        <button onclick="deploy()">ACTIVATE PROTOCOL</button>
+        <h2 style="margin-top:25px;">LIVE_LOGS</h2>
         <div id="tLogs" style="flex:1; overflow-y:auto;"></div>
     </section>
 
-    <section style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-        <div style="letter-spacing:10px; opacity:0.4; font-size:0.8rem;">WAYNE ENTERPRISE</div>
-        <div style="margin-top:20px; font-size:0.7rem; color:var(--accent); border:1px solid var(--accent); padding:5px 15px;">GABBY'S NEURAL LINK : ONLINE</div>
+    <section style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; opacity:0.8;">
+        <div style="letter-spacing:12px; font-size:0.9rem;">GABBY OS v17.0</div>
+        <div style="margin-top:25px; font-size:0.75rem; border:1px solid var(--accent); padding:8px 20px;">NEURAL_LINK : ENCRYPTED</div>
     </section>
 
     <section class="panel">
-        <h2>COMMUNICATIONS</h2>
+        <h2>ENCRYPTED_COMMS</h2>
         <div id="chat-flow">
             <div class="msg bw">
-                <span class="msg-ts">SYSTEM START</span>
-                Bruce: 链接已重置。Gabby，所有战术协议已准备就绪。
+                <span class="msg-ts">SYSTEM INITIALIZED</span>
+                Bruce: 身份验证通过。Gabby，系统已根据你的偏好完成重构。
             </div>
         </div>
-        <div style="display:flex; gap:8px; border-top:1px solid var(--dim); padding-top:15px;">
-            <input type="text" id="uInput" placeholder="汇报或询问..." style="flex:1; margin:0;" onkeypress="if(event.key==='Enter') send()">
-            <button onclick="send()" style="margin:0; padding:0 20px;">SEND</button>
+        <div style="display:flex; gap:10px; border-top:1px solid var(--dim); padding-top:20px;">
+            <input type="text" id="uInput" placeholder="向布鲁斯汇报..." style="flex:1; margin:0;" onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()" style="margin:0; padding:0 25px;">SEND</button>
         </div>
     </section>
 </div>
 
 <div id="view-cal" class="view">
     <section class="panel" style="grid-column: 1 / 4;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2>MONTHLY_TACTICAL_PROJECTION</h2>
-            <div style="font-size:0.7rem;">APRIL 2026</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h2>MONTHLY_TACTICAL_MATRIX</h2>
+            <div style="font-size:0.8rem; letter-spacing:2px;">GOTHAM STANDARD TIME</div>
         </div>
         <div class="cal-container" id="calContainer"></div>
     </section>
@@ -123,11 +121,14 @@
 <script>
     let missions = [];
 
-    // 1. 视图切换逻辑
+    function toggleCustom() {
+        const type = document.getElementById('tCycle').value;
+        document.getElementById('tCustomVal').style.display = (type === 'custom') ? 'block' : 'none';
+    }
+
     function switchView(mode) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        
         if(mode === 'main') {
             document.getElementById('view-main').classList.add('active');
             document.getElementById('btn-main').classList.add('active');
@@ -135,33 +136,34 @@
             document.getElementById('view-cal').classList.add('active');
             document.getElementById('btn-cal').classList.add('active');
             renderCalendar();
-            post('bw', "Bruce: 正在扫描时间轴，Gabby。");
         }
     }
 
-    // 2. 任务部署逻辑
     function deploy() {
         const name = document.getElementById('tName').value;
         const date = document.getElementById('tDate').value;
         const cycle = document.getElementById('tCycle').value;
+        const customVal = document.getElementById('tCustomVal').value;
+        
         if(!name || !date) return;
 
-        missions.push({ name, date, cycle });
+        let interval = (cycle === 'custom') ? parseInt(customVal) : (cycle === 'once' ? 0 : parseInt(cycle));
+        missions.push({ name, date, interval });
+        
         updateLogs();
-        post('bw', `Gabby，"${name}" 任务已同步至全息日历。`);
+        post('bw', `Gabby，"${name}" 任务已同步。循环周期：${interval || '单次'} 天。`);
         document.getElementById('tName').value = "";
     }
 
     function updateLogs() {
         const log = document.getElementById('tLogs');
         log.innerHTML = missions.map(m => `
-            <div style="border-left:2px solid var(--accent); padding:10px; margin-bottom:10px; background:rgba(0,255,255,0.03); font-size:0.8rem;">
-                <strong>${m.name}</strong><br><small>${m.date} | ${m.cycle}</small>
+            <div style="border-left:2px solid var(--accent); padding:12px; margin-bottom:12px; background:rgba(0,255,255,0.03);">
+                <strong>> ${m.name}</strong><br><small>${m.date} | ${m.interval ? m.interval+'D Cycle' : 'Once'}</small>
             </div>
         `).join('');
     }
 
-    // 3. 日历渲染逻辑
     function renderCalendar() {
         const container = document.getElementById('calContainer');
         container.innerHTML = "";
@@ -170,20 +172,28 @@
         const today = now.getDate();
 
         for(let i=1; i<=daysInMonth; i++) {
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-            const cellMissions = missions.filter(m => m.date === dateStr);
+            const currentStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+            const cellDate = new Date(currentStr);
             
+            // 筛选该日期的任务（支持循环计算）
+            const cellMissions = missions.filter(m => {
+                const startDate = new Date(m.date);
+                if (currentStr === m.date) return true;
+                if (m.interval > 0 && cellDate > startDate) {
+                    const diffTime = cellDate - startDate;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays % m.interval === 0;
+                }
+                return false;
+            });
+
             const cell = document.createElement('div');
             cell.className = `cal-cell ${i === today ? 'today' : ''}`;
-            cell.innerHTML = `
-                <span class="cal-num">${i}</span>
-                ${cellMissions.map(m => `<span class="cal-mark">${m.name}</span>`).join('')}
-            `;
+            cell.innerHTML = `<span class="cal-num">${i}</span>${cellMissions.map(m => `<span class="cal-mark">${m.name}</span>`).join('')}`;
             container.appendChild(cell);
         }
     }
 
-    // 4. 增强型沟通系统 (Gabby 专用)
     function send() {
         const input = document.getElementById('uInput');
         const text = input.value.trim();
@@ -193,17 +203,24 @@
         input.value = "";
 
         setTimeout(() => {
-            let res = "收到，Gabby。正在处理数据。";
+            let res = "收到，Gabby。正在监控相关频道。";
             const t = text.toLowerCase();
-            if(t.includes("累") || t.includes("休息") || t.includes("不舒服")) {
-                res = "Gabby，监测到你的疲劳值上升。这是指令：立刻休息，阿福会盯着后续的。";
-            } else if(t.includes("完成") || t.includes("汇报") || t.includes("调查")) {
-                res = "做得好，Gabby。这些线索对哥谭的案件至关重要。";
-            } else if(t.includes("晚安") || t.includes("再见")) {
-                res = "晚安，Gabby。哥谭的明天也需要你。";
+            
+            // 增强的关键词矩阵
+            if(t.includes("不舒服") || t.includes("累") || t.includes("病") || t.includes("痛") || t.includes("熬夜")) {
+                res = "Gabby，阿福已经通知我你的生物电信号异常。这不是建议，是指令：立刻停止任务去休息。";
+            } else if(t.includes("小丑") || t.includes("企鹅人") || t.includes("敌人") || t.includes("罪犯")) {
+                res = "他们总是在阴影里蠢蠢欲动。Gabby，保持警惕，我会让卫星锁定该区域。";
+            } else if(t.includes("线索") || t.includes("证据") || t.includes("调查") || t.includes("监控")) {
+                res = "分析中... 这些数据很重要，Gabby。继续深挖，不要放过任何不合理的细节。";
+            } else if(t.includes("谢谢") || t.includes("晚安") || t.includes("明天见")) {
+                res = "不客气，Gabby。哥谭的夜晚很冷，早点休息。";
+            } else if(t.includes("紧急") || t.includes("救命") || t.includes("警报") || t.includes("出事了")) {
+                res = "Gabby！立刻发送你的地理坐标。我已经在路上了！保持通话！";
             }
+            
             post('bw', `Bruce: ${res}`);
-        }, 1200);
+        }, 1300);
     }
 
     function post(type, text) {
@@ -215,7 +232,6 @@
         flow.scrollTop = flow.scrollHeight;
     }
 
-    // 初始化
     setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
     document.getElementById('tDate').valueAsDate = new Date();
 </script>
