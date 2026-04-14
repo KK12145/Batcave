@@ -3,272 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wayne Corp | Tactical Scheduler v7.0</title>
+    <title>Bat-Computer v8.0 | Tactical OS</title>
     <style>
         :root {
-            --bg-base: #050505;
-            --bg-grid: rgba(0, 255, 65, 0.05);
-            --main-color: #00ff41; 
-            --text-color: #00ff41;
-            --panel-bg: rgba(0, 20, 0, 0.9);
-            --border-color: #00ff41;
-            --accent-glow: 0 0 15px rgba(0, 255, 65, 0.3);
-            --bruce-comm: #888;
+            --main-color: #00ff41;
+            --bg-dark: #020502;
+            --panel-bg: rgba(0, 20, 0, 0.85);
+            --border-glow: 0 0 10px rgba(0, 255, 65, 0.4);
+            --text-dim: #008f11;
         }
 
-        .theme-day {
-            --bg-base: #e0e0e0;
-            --bg-grid: rgba(0, 0, 0, 0.05);
-            --main-color: #222;
-            --text-color: #111;
-            --panel-bg: rgba(255, 255, 255, 0.95);
-            --border-color: #333;
-            --accent-glow: 0 0 10px rgba(0, 0, 0, 0.1);
-            --bruce-comm: #555;
-        }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
 
-        * { box-sizing: border-box; }
         body {
-            background-color: var(--bg-base);
-            color: var(--text-color);
+            background-color: var(--bg-dark);
+            color: var(--main-color);
             font-family: 'Segoe UI', 'Courier New', monospace;
             margin: 0;
             height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: linear-gradient(var(--bg-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
-            background-size: 30px 30px;
-            transition: all 0.5s;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, #001a00 0%, transparent 80%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 100%, 100% 4px, 100% 100%;
         }
 
-        #hud-interface {
-            width: 95%;
-            max-width: 1100px;
-            display: flex;
-            gap: 20px;
-            z-index: 10;
-        }
-
-        /* 主面板 */
-        .main-terminal {
-            flex: 3;
-            border: 2px solid var(--border-color);
-            background: var(--panel-bg);
-            box-shadow: var(--accent-glow);
-            padding: 25px;
+        /* 左侧导航栏 */
+        nav {
+            width: 80px;
+            border-right: 1px solid var(--main-color);
             display: flex;
             flex-direction: column;
-            backdrop-filter: blur(10px);
-        }
-
-        .terminal-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        /* 任务输入区升级 */
-        .input-section {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .primary-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        input, select {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px;
-            outline: none;
-        }
-
-        /* 次级调度面板 (Sub-menu) */
-        .scheduling-options {
-            display: flex;
-            gap: 15px;
-            font-size: 0.8rem;
             align-items: center;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 10px;
-            margin-top: 5px;
+            padding: 20px 0;
+            gap: 30px;
+            background: rgba(0, 5, 0, 0.5);
         }
 
-        button {
-            background: var(--main-color);
-            color: var(--bg-base);
-            border: none;
-            padding: 8px 15px;
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border: 1px solid var(--main-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 0.7rem;
+            text-align: center;
+            box-shadow: var(--border-glow);
+        }
+
+        .nav-btn:hover {
+            background: var(--main-color);
+            color: black;
+        }
+
+        /* 主容器 */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 300px 1fr 250px;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--main-color);
+            box-shadow: var(--border-glow);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(5px);
+        }
+
+        h3 {
+            font-size: 0.8rem;
+            margin: 0 0 10px 0;
+            border-bottom: 1px solid var(--main-color);
+            padding-bottom: 5px;
+            letter-spacing: 2px;
             text-transform: uppercase;
         }
 
-        button:hover { filter: brightness(1.2); }
+        /* 日历样式 */
+        #calendar-mini {
+            font-size: 0.7rem;
+            text-align: center;
+        }
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .cal-day { border: 1px solid var(--text-dim); padding: 5px; }
+        .cal-today { background: var(--main-color); color: black; font-weight: bold; }
 
-        /* 任务列表 */
-        #task-list {
+        /* 当日提醒框 */
+        #today-focus {
+            flex: 1;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #fff;
+            text-shadow: 0 0 5px var(--main-color);
+        }
+
+        /* 任务管理区 */
+        .task-center { grid-column: 2; }
+        
+        input, select {
+            background: transparent;
+            border: 1px solid var(--main-color);
+            color: var(--main-color);
+            padding: 10px;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .task-list-container {
             flex: 1;
             overflow-y: auto;
-            list-style: none;
-            padding: 0;
-            margin: 0;
         }
 
         .task-card {
-            background: rgba(255,255,255,0.03);
-            border-left: 4px solid var(--main-color);
-            padding: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: slideIn 0.3s ease;
+            border: 1px solid var(--text-dim);
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+            background: rgba(0, 255, 65, 0.05);
         }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } }
-
-        .task-info strong { font-size: 1.1rem; }
-        .schedule-badge {
-            display: inline-block;
-            background: var(--main-color);
-            color: var(--bg-base);
-            padding: 2px 6px;
-            font-size: 0.65rem;
-            font-weight: bold;
-            margin-top: 5px;
-            border-radius: 2px;
+        /* 语录区 */
+        .bruce-alert {
+            grid-column: 3;
+            font-size: 0.85rem;
+            font-style: italic;
+            color: #aaa;
+            line-height: 1.6;
         }
 
-        .next-date {
-            font-size: 0.75rem;
-            color: var(--main-color);
-            opacity: 0.8;
-            margin-top: 4px;
+        .bat-logo-bg {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            opacity: 0.1;
+            pointer-events: none;
         }
 
-        .delete-btn { color: #ff4444; cursor: pointer; font-size: 0.8rem; border: 1px solid #ff4444; padding: 3px 6px;}
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 65, 0.1);
+            position: absolute;
+            top: 0;
+            animation: scan 3s linear infinite;
+        }
 
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="hud-interface">
-        <div class="main-terminal">
-            <div class="terminal-header">
-                <div>LOGGED AS: <span id="user-role">BATMAN</span></div>
-                <div id="clock">00:00:00</div>
-                <div>SECURE_LINE: <span style="color:red">●</span> ACTIVE</div>
+<nav>
+    <div class="nav-btn">MAP</div>
+    <div class="nav-btn" style="background: var(--main-color); color: black;">TASK</div>
+    <div class="nav-btn">DATA</div>
+    <div class="nav-btn">COMMS</div>
+</nav>
+
+<main>
+    <div class="side-area">
+        <div class="panel">
+            <h3>Tactical Calendar</h3>
+            <div id="calendar-mini">
+                <div id="month-name" style="margin-bottom:5px; font-weight:bold;">April 2026</div>
+                <div class="cal-grid" id="cal-grid">
+                    </div>
             </div>
-
-            <h2 style="text-align:center; letter-spacing: 5px;">MISSION SCHEDULER</h2>
-
-            <div class="input-section">
-                <div class="primary-input">
-                    <input type="text" id="taskInput" placeholder="输入任务名称 (例如: 巡逻东区仓库)..." style="flex:3;">
-                    <button onclick="deployTask()">部署任务</button>
-                </div>
-                
-                <div class="scheduling-options">
-                    <span>频率:</span>
-                    <select id="freqSelect" onchange="toggleCustomDays()">
-                        <option value="once">单次任务</option>
-                        <option value="1">每天</option>
-                        <option value="3">每3天 (标准周期)</option>
-                        <option value="7">每周</option>
-                        <option value="custom">自定义天数</option>
-                    </select>
-                    <input type="number" id="customDays" placeholder="天数" style="width:60px; display:none;" min="1">
-                    <span>开始日期:</span>
-                    <input type="date" id="startDate">
-                </div>
-            </div>
-
-            <ul id="task-list"></ul>
-
-            <div id="bruce-comm" style="margin-top: 15px; font-size: 0.85rem; color: var(--bruce-comm); font-style: italic;">
-                Wayne: 正在同步卫星日历...
+        </div>
+        
+        <div class="panel" style="margin-top:15px; flex:1;">
+            <h3>Today's Priority</h3>
+            <div id="today-focus">
+                > No critical threats detected.
             </div>
         </div>
     </div>
 
-    <script>
-        // 设置默认日期为今天
-        document.getElementById('startDate').valueAsDate = new Date();
+    <div class="panel task-center">
+        <div class="scan-line"></div>
+        <h3>Mission Control</h3>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="taskInput" placeholder="Enter objective..." style="flex:1;">
+            <select id="freqSelect">
+                <option value="once">ONCE</option>
+                <option value="3">PER 3 DAYS</option>
+                <option value="7">WEEKLY</option>
+            </select>
+            <button onclick="addTask()" style="background:var(--main-color); border:none; padding:0 15px; cursor:pointer; font-weight:bold;">DEPLOY</button>
+        </div>
+        <div class="task-list-container" id="taskList">
+            </div>
+    </div>
 
-        function toggleCustomDays() {
-            const select = document.getElementById('freqSelect');
-            const customInput = document.getElementById('customDays');
-            customInput.style.display = (select.value === 'custom') ? 'inline-block' : 'none';
+    <div class="panel bruce-alert">
+        <h3>Encrypted Comms</h3>
+        <div id="bruce-quote">
+            "I'm watching. Don't let the city down."
+        </div>
+        <div style="margin-top:20px; color:var(--main-color); font-size:0.7rem;">
+            [SYSTEM STATUS]<br>
+            - Satellite Link: Active<br>
+            - Batmobile: Fueled<br>
+            - Gotham: At Risk
+        </div>
+    </div>
+</main>
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Batman_Logo.svg" class="bat-logo-bg">
+
+<script>
+    const quotes = [
+        "你需要变得比一个普通人更多，如果你献身于一个理想。",
+        "并不是我现在的身份定义了我，而是我的所作所为。",
+        "我们需要在黎明前完成这个。现在就开始。",
+        "恐惧是你的朋友，但不要让它控制你。",
+        "阿福已经把装备准备好了，别浪费时间。"
+    ];
+
+    // 初始化日历
+    function initCalendar() {
+        const grid = document.getElementById('cal-grid');
+        const now = new Date();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const today = now.getDate();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = i === today ? 'cal-day cal-today' : 'cal-day';
+            dayDiv.innerText = i;
+            grid.appendChild(dayDiv);
         }
+    }
 
-        function deployTask() {
-            const titleInput = document.getElementById('taskInput');
-            const freqSelect = document.getElementById('freqSelect');
-            const customDays = document.getElementById('customDays');
-            const dateInput = document.getElementById('startDate');
-            
-            if (!titleInput.value) return;
+    // 部署任务
+    function addTask() {
+        const input = document.getElementById('taskInput');
+        const freq = document.getElementById('freqSelect');
+        const list = document.getElementById('taskList');
+        const focus = document.getElementById('today-focus');
 
-            // 计算频率
-            let freq = freqSelect.value;
-            if (freq === 'custom') freq = customDays.value || 1;
-            
-            const list = document.getElementById('task-list');
-            const li = document.createElement('li');
-            li.className = 'task-card';
+        if (!input.value) return;
 
-            const freqLabel = freq === 'once' ? 'ONCE' : `EVERY ${freq} DAYS`;
-            
-            // 计算下一次日期（如果是循环任务）
-            let nextDeployStr = "Standby";
-            if (freq !== 'once') {
-                const start = new Date(dateInput.value);
-                start.setDate(start.getDate() + parseInt(freq));
-                nextDeployStr = start.toLocaleDateString();
-            }
+        // 创建卡片
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.innerHTML = `
+            <strong>OBJ: ${input.value}</strong><br>
+            <span style="font-size:0.7rem; color:var(--main-color)">FREQ: ${freq.options[freq.selectedIndex].text}</span>
+            <span style="float:right; cursor:pointer;" onclick="this.parentElement.remove()">[ELIMINATE]</span>
+        `;
 
-            li.innerHTML = `
-                <div class="task-info">
-                    <strong>${titleInput.value}</strong><br>
-                    <span class="schedule-badge">${freqLabel}</span>
-                    <div class="next-date">下次部署: ${nextDeployStr}</div>
-                </div>
-                <div class="delete-btn" onclick="this.parentElement.remove()">任务中止</div>
-            `;
+        list.prepend(card);
 
-            list.prepend(li);
-            
-            // 重置与反馈
-            titleInput.value = "";
-            document.getElementById('bruce-comm').innerText = `Wayne: 任务已加入日历。循环周期：${freqLabel}。`;
-        }
+        // 更新当日提醒（如果是第一个任务）
+        focus.innerHTML = `> CURRENT: ${input.value}<br>> STATUS: ACTIVE`;
 
-        // 基础系统功能
-        function updateClock() {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }
-        function updateTheme() {
-            const hour = new Date().getHours();
-            const isNight = hour >= 18 || hour < 6;
-            document.body.classList.toggle('theme-day', !isNight);
-            document.getElementById('user-role').innerText = isNight ? "BATMAN" : "BRUCE WAYNE";
-        }
+        // 更新布鲁斯语录
+        document.getElementById('bruce-quote').innerText = `"${quotes[Math.floor(Math.random()*quotes.length)]}"`;
 
-        setInterval(updateClock, 1000);
-        setInterval(updateTheme, 60000);
-        updateTheme();
-        updateClock();
-    </script>
+        input.value = "";
+    }
+
+    initCalendar();
+</script>
+
 </body>
 </html>
