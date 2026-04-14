@@ -2,239 +2,249 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wayne OS | Gabby's Terminal v17.0</title>
+    <title>Wayne OS | Gabby's Advanced Command v22.0</title>
     <style>
         :root {
-            --accent: #00ffff; 
-            --bg: #00050a; 
-            --dim: rgba(0, 255, 255, 0.15);
-            --panel: rgba(0, 12, 25, 0.9);
-            --glow: 0 0 25px rgba(0, 255, 255, 0.25);
+            --accent: #00ffff; --bg: #00050a; --dim: rgba(0, 255, 255, 0.15);
+            --panel: rgba(0, 15, 30, 0.95); --glow: 0 0 25px rgba(0, 255, 255, 0.2);
+            --urgent: #ff3333; --core: #ffaa00;
         }
-
-        * { box-sizing: border-box; transition: 0.3s ease; }
+        * { box-sizing: border-box; transition: 0.25s ease; }
         body { background: var(--bg); color: var(--accent); font-family: 'Inter', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        #bg-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(var(--dim) 1px, transparent 1px); background-size: 40px 40px; z-index: -1; }
 
-        /* 背景装饰 */
-        #bg-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(var(--dim) 1px, transparent 1px); background-size: 45px 45px; z-index: -1; }
-        .bat-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 420px; opacity: 0.03; pointer-events: none; animation: pulse 12s infinite; }
-        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.02; } 50% { transform: translate(-50%, -50%) scale(1.08); opacity: 0.05; } }
+        nav { height: 70px; border-bottom: 1px solid var(--dim); display: flex; align-items: center; padding: 0 30px; gap: 20px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 100; }
+        .nav-btn { font-size: 0.7rem; letter-spacing: 3px; cursor: pointer; opacity: 0.5; padding: 10px 15px; border: 1px solid transparent; text-transform: uppercase; }
+        .nav-btn.active { opacity: 1; border-color: var(--accent); background: rgba(0, 255, 255, 0.05); }
 
-        /* 导航系统 */
-        nav { height: 75px; border-bottom: 1px solid var(--dim); display: flex; align-items: center; padding: 0 40px; gap: 30px; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); z-index: 100; }
-        .nav-btn { font-size: 0.75rem; letter-spacing: 4px; cursor: pointer; opacity: 0.4; padding: 12px 20px; border: 1px solid transparent; text-transform: uppercase; }
-        .nav-btn:hover, .nav-btn.active { opacity: 1; border-color: var(--accent); background: rgba(0, 255, 255, 0.1); box-shadow: inset 0 0 10px var(--accent); }
-
-        /* 视图容器 */
-        .view { display: none; height: calc(100vh - 75px); padding: 35px; grid-template-columns: 360px 1fr 360px; gap: 30px; }
+        .view { display: none; height: calc(100vh - 70px); padding: 25px; grid-template-columns: 320px 1fr 350px; gap: 20px; }
         .view.active { display: grid; }
+        
+        .panel { background: var(--panel); border: 1px solid var(--dim); padding: 20px; display: flex; flex-direction: column; backdrop-filter: blur(20px); box-shadow: var(--glow); position: relative; }
+        h2 { font-size: 0.7rem; letter-spacing: 4px; border-bottom: 1px solid var(--dim); padding-bottom: 10px; margin-bottom: 15px; color: #fff; opacity: 0.8; }
 
-        /* 面板样式 */
-        .panel { background: var(--panel); border: 1px solid var(--dim); padding: 25px; display: flex; flex-direction: column; backdrop-filter: blur(25px); box-shadow: var(--glow); border-radius: 2px; }
-        h2 { font-size: 0.75rem; letter-spacing: 6px; border-bottom: 1px solid var(--dim); padding-bottom: 12px; margin: 0 0 20px 0; color: #fff; text-shadow: 0 0 8px var(--accent); }
+        input, select, button { background: rgba(0, 255, 255, 0.05); border: 1px solid var(--dim); color: var(--accent); padding: 10px; font-size: 0.8rem; outline: none; margin-bottom: 10px; width: 100%; }
+        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; }
+        button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
+        
+        /* 任务列表增强 */
+        .task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; overflow-y: auto; align-content: start; }
+        .task-card { border: 1px solid var(--dim); border-left: 4px solid var(--accent); padding: 15px; background: rgba(0, 255, 255, 0.02); cursor: pointer; position: relative; }
+        .task-card:hover { background: rgba(0, 255, 255, 0.08); border-color: var(--accent); }
+        .task-card.status-done { opacity: 0.3; text-decoration: line-through; border-left-color: #666; }
+        .task-card.pri-urgent { border-left-color: var(--urgent); }
+        .task-card.pri-core { border-left-color: var(--core); }
+        
+        .del-btn { position: absolute; top: 10px; right: 10px; color: var(--urgent); font-size: 0.8rem; cursor: pointer; padding: 5px; opacity: 0.5; z-index: 5; }
+        .del-btn:hover { opacity: 1; transform: scale(1.2); }
+        .edit-hint { position: absolute; bottom: 5px; right: 10px; font-size: 0.5rem; opacity: 0.3; }
 
-        /* 输入组件 */
-        input, select, button { background: rgba(0, 255, 255, 0.05); border: 1px solid var(--dim); color: var(--accent); padding: 12px; font-family: inherit; font-size: 0.85rem; outline: none; margin-bottom: 12px; }
-        input:focus { border-color: var(--accent); background: rgba(0, 255, 255, 0.1); }
-        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; letter-spacing: 2px; }
-        button:hover { background: #fff; box-shadow: 0 0 25px #fff; }
-
-        /* 通讯信息 */
-        #chat-flow { flex: 1; overflow-y: auto; padding-right: 12px; }
-        .msg { margin-bottom: 22px; font-size: 0.9rem; line-height: 1.7; }
-        .msg.bw { color: var(--accent); }
-        .msg.user { color: #fff; text-align: right; }
-        .msg-ts { font-size: 0.65rem; opacity: 0.4; display: block; margin-bottom: 5px; }
-
-        /* 日历布局 */
-        .cal-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; flex: 1; }
-        .cal-cell { border: 1px solid var(--dim); padding: 12px; min-height: 120px; background: rgba(0, 255, 255, 0.01); position: relative; }
-        .cal-cell.today { border-color: var(--accent); background: rgba(0, 255, 255, 0.08); }
-        .cal-num { font-size: 1.2rem; font-weight: bold; opacity: 0.2; }
-        .cal-mark { font-size: 0.7rem; color: #fff; background: rgba(0, 255, 255, 0.15); border-left: 3px solid var(--accent); padding: 3px 8px; margin-top: 6px; display: block; }
-
-        #clock { font-size: 2.4rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 12px var(--accent); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--accent); }
+        #chat-flow { flex: 1; overflow-y: auto; }
+        .msg { margin-bottom: 15px; font-size: 0.85rem; line-height: 1.6; }
+        .msg.bw { color: var(--accent); border-left: 2px solid var(--accent); padding-left: 10px; }
+        #clock { font-size: 2rem; font-weight: bold; text-shadow: 0 0 10px var(--accent); }
     </style>
 </head>
 <body>
 
 <div id="bg-grid"></div>
-<img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Batman_Logo.svg" class="bat-logo">
 
 <nav>
-    <div class="nav-btn active" id="btn-main" onclick="switchView('main')">COMMAND_CENTER</div>
-    <div class="nav-btn" id="btn-cal" onclick="switchView('cal')">MISSION_CALENDAR</div>
+    <div class="nav-btn active" id="btn-main" onclick="switchView('main')">OPERATIONS</div>
+    <div class="nav-btn" id="btn-cal" onclick="switchView('cal')">STRATEGIC_CALENDAR</div>
     <div style="flex:1"></div>
     <div id="clock">00:00:00</div>
 </nav>
 
 <div id="view-main" class="view active">
     <section class="panel">
-        <h2>TACTICAL_DEPLOY</h2>
-        <input type="text" id="tName" placeholder="任务代号 (OBJ_CODE)...">
+        <h2 id="formTitle">MISSION_INPUT</h2>
+        <input type="hidden" id="editId">
+        <input type="text" id="tName" placeholder="任务代号...">
         <input type="date" id="tDate">
-        <select id="tCycle" onchange="toggleCustom()">
-            <option value="once">ONCE (单次执行)</option>
-            <option value="1">DAILY (每日循环)</option>
-            <option value="3">3-DAYS (3日巡检)</option>
-            <option value="custom">CUSTOM (自定义循环)</option>
+        <select id="tPri">
+            <option value="normal">NORMAL</option>
+            <option value="core">CORE</option>
+            <option value="urgent">URGENT</option>
         </select>
-        <input type="number" id="tCustomVal" placeholder="输入循环天数..." style="display:none;">
-        <button onclick="deploy()">ACTIVATE PROTOCOL</button>
-        <h2 style="margin-top:25px;">LIVE_LOGS</h2>
-        <div id="tLogs" style="flex:1; overflow-y:auto;"></div>
-    </section>
-
-    <section style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; opacity:0.8;">
-        <div style="letter-spacing:12px; font-size:0.9rem;">GABBY OS v17.0</div>
-        <div style="margin-top:25px; font-size:0.75rem; border:1px solid var(--accent); padding:8px 20px;">NEURAL_LINK : ENCRYPTED</div>
+        <select id="tCycle" onchange="toggleCustom()">
+            <option value="0">SINGLE</option>
+            <option value="1">DAILY</option>
+            <option value="custom">CUSTOM</option>
+        </select>
+        <input type="number" id="tCustomVal" placeholder="循环天数..." style="display:none;">
+        <button id="mainBtn" onclick="deploy()">DEPLOY / UPDATE</button>
+        <button onclick="resetForm()" style="background:transparent; color:#555; border:1px solid #333; margin-top:5px;">CANCEL EDIT</button>
     </section>
 
     <section class="panel">
-        <h2>ENCRYPTED_COMMS</h2>
-        <div id="chat-flow">
-            <div class="msg bw">
-                <span class="msg-ts">SYSTEM INITIALIZED</span>
-                Bruce: 身份验证通过。Gabby，系统已根据你的偏好完成重构。
-            </div>
-        </div>
-        <div style="display:flex; gap:10px; border-top:1px solid var(--dim); padding-top:20px;">
-            <input type="text" id="uInput" placeholder="向布鲁斯汇报..." style="flex:1; margin:0;" onkeypress="if(event.key==='Enter') send()">
-            <button onclick="send()" style="margin:0; padding:0 25px;">SEND</button>
+        <h2>ACTIVE_OBJECTIVES (Click to Edit / Right-Click to Complete)</h2>
+        <div id="tLogs" class="task-grid"></div>
+    </section>
+
+    <section class="panel">
+        <h2>COMMS_LINK</h2>
+        <div id="chat-flow"></div>
+        <div style="display:flex; gap:10px; border-top:1px solid var(--dim); padding-top:15px;">
+            <input type="text" id="uInput" placeholder="Report..." style="flex:1; margin:0;" onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()" style="margin:0; width:60px;">SEND</button>
         </div>
     </section>
 </div>
 
 <div id="view-cal" class="view">
     <section class="panel" style="grid-column: 1 / 4;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-            <h2>MONTHLY_TACTICAL_MATRIX</h2>
-            <div style="font-size:0.8rem; letter-spacing:2px;">GOTHAM STANDARD TIME</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <button onclick="changeMonth(-1)" style="width:auto;">&lt;</button>
+            <h2 id="calMonthDisplay" style="margin:0; border:none;"></h2>
+            <button onclick="changeMonth(1)" style="width:auto;">&gt;</button>
         </div>
-        <div class="cal-container" id="calContainer"></div>
+        <div class="cal-container" id="calContainer" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:10px; flex:1;"></div>
     </section>
 </div>
 
 <script>
-    let missions = [];
+    const API_KEY = "sk-d10f68eb095e4a03aa4e33d697f269a0";
+    const API_URL = "https://api.deepseek.com/chat/completions";
+    
+    let missions = JSON.parse(localStorage.getItem('gabby_v22_data')) || [];
+    let currentCalDate = new Date();
 
-    function toggleCustom() {
-        const type = document.getElementById('tCycle').value;
-        document.getElementById('tCustomVal').style.display = (type === 'custom') ? 'block' : 'none';
+    window.onload = () => { updateLogs(); post('bw', "Bruce: Gabby，控制台逻辑已升级。你可以随时修正任务细节或取消行动。"); };
+
+    function deploy() {
+        const id = document.getElementById('editId').value;
+        const name = document.getElementById('tName').value;
+        const date = document.getElementById('tDate').value;
+        const pri = document.getElementById('tPri').value;
+        const cycle = document.getElementById('tCycle').value;
+        const interval = (cycle === 'custom') ? parseInt(document.getElementById('tCustomVal').value) : parseInt(cycle);
+
+        if(!name || !date) return;
+
+        if(id) { // 更新现有任务
+            const idx = missions.findIndex(m => m.id == id);
+            missions[idx] = { ...missions[idx], name, date, pri, interval };
+            post('bw', `Gabby, 任务 "${name}" 的战术参数已更新。`);
+        } else { // 创建新任务
+            missions.push({ id: Date.now(), name, date, pri, interval, status: 'todo' });
+            post('bw', `Gabby, 新目标 "${name}" 已载入。`);
+        }
+        
+        sync();
+        resetForm();
     }
 
-    function switchView(mode) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        if(mode === 'main') {
-            document.getElementById('view-main').classList.add('active');
-            document.getElementById('btn-main').classList.add('active');
-        } else {
-            document.getElementById('view-cal').classList.add('active');
-            document.getElementById('btn-cal').classList.add('active');
-            renderCalendar();
+    function editTask(id) {
+        const m = missions.find(x => x.id == id);
+        document.getElementById('editId').value = m.id;
+        document.getElementById('tName').value = m.name;
+        document.getElementById('tDate').value = m.date;
+        document.getElementById('tPri').value = m.pri;
+        document.getElementById('tCycle').value = (m.interval > 1) ? 'custom' : m.interval;
+        if(m.interval > 1) {
+            document.getElementById('tCustomVal').value = m.interval;
+            document.getElementById('tCustomVal').style.display = 'block';
+        }
+        document.getElementById('formTitle').innerText = "EDITING_MISSION";
+        document.getElementById('mainBtn').innerText = "UPDATE_MISSION";
+    }
+
+    function deleteTask(event, id) {
+        event.stopPropagation(); // 阻止触发编辑
+        if(confirm("确定撤销该行动计划？")) {
+            const m = missions.find(x => x.id == id);
+            missions = missions.filter(x => x.id != id);
+            sync();
+            post('bw', `已从数据库中抹除行动代号: ${m.name}。`);
         }
     }
 
-    function deploy() {
-        const name = document.getElementById('tName').value;
-        const date = document.getElementById('tDate').value;
-        const cycle = document.getElementById('tCycle').value;
-        const customVal = document.getElementById('tCustomVal').value;
-        
-        if(!name || !date) return;
+    function toggleStatus(event, id) {
+        event.preventDefault(); // 右键触发
+        const m = missions.find(x => x.id == id);
+        m.status = (m.status === 'todo') ? 'done' : 'todo';
+        sync();
+    }
 
-        let interval = (cycle === 'custom') ? parseInt(customVal) : (cycle === 'once' ? 0 : parseInt(cycle));
-        missions.push({ name, date, interval });
-        
-        updateLogs();
-        post('bw', `Gabby，"${name}" 任务已同步。循环周期：${interval || '单次'} 天。`);
+    function resetForm() {
+        document.getElementById('editId').value = "";
         document.getElementById('tName').value = "";
+        document.getElementById('tDate').valueAsDate = new Date();
+        document.getElementById('tPri').value = "normal";
+        document.getElementById('tCycle').value = "0";
+        document.getElementById('tCustomVal').style.display = 'none';
+        document.getElementById('formTitle').innerText = "MISSION_INPUT";
+        document.getElementById('mainBtn').innerText = "DEPLOY / UPDATE";
+    }
+
+    function sync() {
+        localStorage.setItem('gabby_v22_data', JSON.stringify(missions));
+        updateLogs();
+        if(document.getElementById('view-cal').classList.contains('active')) renderCalendar();
     }
 
     function updateLogs() {
         const log = document.getElementById('tLogs');
-        log.innerHTML = missions.map(m => `
-            <div style="border-left:2px solid var(--accent); padding:12px; margin-bottom:12px; background:rgba(0,255,255,0.03);">
-                <strong>> ${m.name}</strong><br><small>${m.date} | ${m.interval ? m.interval+'D Cycle' : 'Once'}</small>
+        log.innerHTML = missions.slice().reverse().map(m => `
+            <div class="task-card status-${m.status} pri-${m.pri}" onclick="editTask(${m.id})" oncontextmenu="toggleStatus(event, ${m.id})">
+                <span class="del-btn" onclick="deleteTask(event, ${m.id})">[撤销]</span>
+                <div style="font-size:0.6rem; opacity:0.5; margin-bottom:5px;">${m.date}</div>
+                <div style="font-weight:bold; font-size:0.9rem;">${m.name}</div>
+                <div style="font-size:0.6rem; margin-top:8px; opacity:0.8;">${m.interval > 0 ? 'CYCLE: '+m.interval+'D' : 'SINGLE'}</div>
+                <span class="edit-hint">Click to Edit / Right-Click Done</span>
             </div>
         `).join('');
     }
 
+    // 辅助功能：时钟、视图切换、日历、通讯 (保持原有逻辑)
+    function switchView(mode) {
+        document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-' + mode).classList.add('active');
+        document.getElementById('btn-' + mode).classList.add('active');
+        if(mode === 'cal') renderCalendar();
+    }
+    function toggleCustom() { document.getElementById('tCustomVal').style.display = (document.getElementById('tCycle').value === 'custom') ? 'block' : 'none'; }
+    function changeMonth(dir) { currentCalDate.setMonth(currentCalDate.getMonth() + dir); renderCalendar(); }
     function renderCalendar() {
-        const container = document.getElementById('calContainer');
-        container.innerHTML = "";
-        const now = new Date();
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        const today = now.getDate();
-
-        for(let i=1; i<=daysInMonth; i++) {
-            const currentStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-            const cellDate = new Date(currentStr);
-            
-            // 筛选该日期的任务（支持循环计算）
-            const cellMissions = missions.filter(m => {
-                const startDate = new Date(m.date);
-                if (currentStr === m.date) return true;
-                if (m.interval > 0 && cellDate > startDate) {
-                    const diffTime = cellDate - startDate;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return diffDays % m.interval === 0;
-                }
+        const container = document.getElementById('calContainer'); const display = document.getElementById('calMonthDisplay');
+        container.innerHTML = ""; const y = currentCalDate.getFullYear(); const m = currentCalDate.getMonth();
+        display.innerText = `${y} / ${String(m+1).padStart(2,'0')}`;
+        const first = new Date(y, m, 1).getDay(); const days = new Date(y, m+1, 0).getDate();
+        for(let i=0; i<first; i++) container.appendChild(document.createElement('div'));
+        for(let i=1; i<=days; i++) {
+            const cur = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+            const dayMs = missions.filter(ms => {
+                const start = new Date(ms.date); const cell = new Date(cur);
+                if (cur === ms.date) return true;
+                if (ms.interval > 0 && cell > start) return Math.round((cell-start)/86400000) % ms.interval === 0;
                 return false;
             });
-
-            const cell = document.createElement('div');
-            cell.className = `cal-cell ${i === today ? 'today' : ''}`;
-            cell.innerHTML = `<span class="cal-num">${i}</span>${cellMissions.map(m => `<span class="cal-mark">${m.name}</span>`).join('')}`;
+            const cell = document.createElement('div'); cell.className = `cal-cell ${cur === new Date().toISOString().split('T')[0] ? 'today' : ''}`;
+            cell.style.border = "1px solid var(--dim)"; cell.style.padding = "8px"; cell.style.minHeight = "80px";
+            cell.innerHTML = `<span>${i}</span>${dayMs.map(ms => `<div style="font-size:0.5rem; color:var(--accent); opacity:${ms.status==='done'?0.3:1}">${ms.name}</div>`).join('')}`;
             container.appendChild(cell);
         }
     }
-
-    function send() {
-        const input = document.getElementById('uInput');
-        const text = input.value.trim();
-        if(!text) return;
-
-        post('user', text);
-        input.value = "";
-
-        setTimeout(() => {
-            let res = "收到，Gabby。正在监控相关频道。";
-            const t = text.toLowerCase();
-            
-            // 增强的关键词矩阵
-            if(t.includes("不舒服") || t.includes("累") || t.includes("病") || t.includes("痛") || t.includes("熬夜")) {
-                res = "Gabby，阿福已经通知我你的生物电信号异常。这不是建议，是指令：立刻停止任务去休息。";
-            } else if(t.includes("小丑") || t.includes("企鹅人") || t.includes("敌人") || t.includes("罪犯")) {
-                res = "他们总是在阴影里蠢蠢欲动。Gabby，保持警惕，我会让卫星锁定该区域。";
-            } else if(t.includes("线索") || t.includes("证据") || t.includes("调查") || t.includes("监控")) {
-                res = "分析中... 这些数据很重要，Gabby。继续深挖，不要放过任何不合理的细节。";
-            } else if(t.includes("谢谢") || t.includes("晚安") || t.includes("明天见")) {
-                res = "不客气，Gabby。哥谭的夜晚很冷，早点休息。";
-            } else if(t.includes("紧急") || t.includes("救命") || t.includes("警报") || t.includes("出事了")) {
-                res = "Gabby！立刻发送你的地理坐标。我已经在路上了！保持通话！";
-            }
-            
-            post('bw', `Bruce: ${res}`);
-        }, 1300);
+    async function send() {
+        const input = document.getElementById('uInput'); const text = input.value.trim(); if(!text) return;
+        post('user', text); input.value = ""; const id = "bw-" + Date.now(); post('bw', "Analyzing...", id);
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
+                body: JSON.stringify({ model: "deepseek-chat", messages: [{ role: "system", content: "你是布鲁斯·韦恩。对话中称呼她为Gabby。" }, { role: "user", content: text }] })
+            });
+            const data = await res.json(); document.getElementById(id).innerText = data.choices[0].message.content;
+        } catch (e) { document.getElementById(id).innerText = "Bruce: 通讯受干扰。"; }
     }
-
-    function post(type, text) {
-        const flow = document.getElementById('chat-flow');
-        const d = document.createElement('div');
-        d.className = `msg ${type}`;
-        d.innerHTML = `<span class="msg-ts">${new Date().toLocaleTimeString()}</span>${text}`;
-        flow.appendChild(d);
-        flow.scrollTop = flow.scrollHeight;
+    function post(type, text, id = "") {
+        const flow = document.getElementById('chat-flow'); const d = document.createElement('div');
+        d.className = `msg ${type}`; if(id) d.id = id;
+        d.innerHTML = `<small style="display:block; opacity:0.3; font-size:0.6rem;">${new Date().toLocaleTimeString()}</small>${text}`;
+        flow.appendChild(d); flow.scrollTop = flow.scrollHeight;
     }
-
     setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
     document.getElementById('tDate').valueAsDate = new Date();
 </script>
-
 </body>
 </html>
