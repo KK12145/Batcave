@@ -3,214 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wayne OS | Gabby's Terminal</title>
+    <title>Wayne OS | Gabby's Terminal v16.0</title>
     <style>
         :root {
             --accent: #00ffff; 
             --bg: #00050a; 
-            --dim-border: rgba(0, 255, 255, 0.15);
-            --panel-bg: rgba(0, 5, 10, 0.85);
-            --glow: 0 0 15px rgba(0, 255, 255, 0.3);
-            --font-main: 'Inter', 'Segoe UI', sans-serif;
+            --dim: rgba(0, 255, 255, 0.15);
+            --panel: rgba(0, 10, 20, 0.85);
+            --glow: 0 0 20px rgba(0, 255, 255, 0.2);
         }
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
+        * { box-sizing: border-box; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { background: var(--bg); color: var(--accent); font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        body {
-            background: var(--bg);
-            color: var(--accent);
-            font-family: var(--font-main);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
+        /* 背景装饰 */
+        #bg-grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(var(--dim) 1px, transparent 1px); background-size: 40px 40px; z-index: -1; }
+        .bat-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; opacity: 0.03; pointer-events: none; animation: pulse 10s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.02; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.05; transform: translate(-50%, -50%) scale(1.05); } }
+
+        /* 导航栏 */
+        nav {
+            height: 70px; border-bottom: 1px solid var(--dim); display: flex; align-items: center; padding: 0 40px; gap: 30px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); z-index: 100;
         }
+        .nav-btn { font-size: 0.7rem; letter-spacing: 3px; cursor: pointer; opacity: 0.5; padding: 10px 15px; border: 1px solid transparent; }
+        .nav-btn:hover, .nav-btn.active { opacity: 1; border-color: var(--accent); background: rgba(0, 255, 255, 0.1); }
 
-        /* 动态蓝色背景 */
-        #bg-canvas {
-            position: absolute;
-            width: 100%; height: 100%;
-            background-image: radial-gradient(var(--dim-border) 1px, transparent 1px);
-            background-size: 35px 35px;
-            z-index: -1;
-        }
+        /* 视图系统 */
+        .view { display: none; height: calc(100vh - 70px); padding: 30px; grid-template-columns: 350px 1fr 350px; gap: 25px; }
+        .view.active { display: grid; }
 
-        .bat-logo {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 350px;
-            opacity: 0.04;
-            filter: invert(1);
-            pointer-events: none;
-            animation: breathe 10s infinite;
-        }
+        /* 通用面板 */
+        .panel { background: var(--panel); border: 1px solid var(--dim); padding: 25px; display: flex; flex-direction: column; backdrop-filter: blur(20px); box-shadow: var(--glow); border-radius: 4px; }
+        h2 { font-size: 0.75rem; letter-spacing: 5px; border-bottom: 1px solid var(--dim); padding-bottom: 10px; margin: 0 0 20px 0; color: #fff; text-shadow: 0 0 5px var(--accent); }
 
-        @keyframes breathe { 0%, 100% { opacity: 0.02; } 50% { opacity: 0.06; } }
-
-        #os-interface {
-            width: 100%;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 340px 1fr 340px;
-            gap: 25px;
-            z-index: 10;
-        }
-
-        .panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--dim-border);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(15px);
-            box-shadow: var(--glow);
-        }
-
-        h2 { font-size: 0.7rem; letter-spacing: 5px; border-bottom: 1px solid var(--dim-border); padding-bottom: 10px; margin-bottom: 15px; }
-
-        /* 任务系统 */
-        input, select, button {
-            background: rgba(0, 255, 255, 0.05);
-            border: 1px solid var(--dim-border);
-            color: var(--accent);
-            padding: 12px;
-            font-size: 0.8rem;
-            outline: none;
-        }
-        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; }
+        /* UI 组件 */
+        input, select, button { background: rgba(0, 255, 255, 0.03); border: 1px solid var(--dim); color: var(--accent); padding: 12px; font-family: inherit; font-size: 0.8rem; outline: none; margin-bottom: 10px; }
+        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; letter-spacing: 1px; }
         button:hover { background: #fff; box-shadow: 0 0 20px #fff; }
 
-        .task-list { flex: 1; overflow-y: auto; }
-        .task-entry { border-left: 2px solid var(--accent); padding: 10px; margin-bottom: 10px; background: rgba(0, 255, 255, 0.02); }
+        /* 沟通系统内容 */
+        #chat-flow { flex: 1; overflow-y: auto; padding-right: 10px; }
+        .msg { margin-bottom: 20px; font-size: 0.85rem; line-height: 1.6; }
+        .msg.bw { color: var(--accent); }
+        .msg.user { color: #fff; text-align: right; }
+        .msg-ts { font-size: 0.6rem; opacity: 0.4; display: block; margin-bottom: 4px; }
 
-        /* 深度沟通系统 */
-        #chat-flow { flex: 1; overflow-y: auto; margin-bottom: 15px; }
-        .message { margin-bottom: 15px; font-size: 0.85rem; line-height: 1.6; }
-        .msg-bw { color: var(--accent); }
-        .msg-user { color: #fff; text-align: right; }
-        .msg-meta { font-size: 0.6rem; opacity: 0.4; display: block; }
+        /* 日历矩阵 */
+        #calendar-grid { grid-template-columns: 1fr; } /* 日历视图设为单列容器 */
+        .cal-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; flex: 1; }
+        .cal-cell { border: 1px solid var(--dim); padding: 10px; min-height: 110px; background: rgba(0, 255, 255, 0.01); position: relative; }
+        .cal-cell.today { border-color: var(--accent); background: rgba(0, 255, 255, 0.05); }
+        .cal-num { font-size: 1.1rem; font-weight: bold; opacity: 0.2; }
+        .cal-mark { font-size: 0.65rem; background: rgba(0, 255, 255, 0.1); border-left: 2px solid var(--accent); padding: 2px 5px; margin-top: 5px; display: block; }
 
-        #clock { font-size: 2.2rem; font-weight: bold; text-shadow: 0 0 10px var(--accent); }
+        #clock { font-size: 2.2rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
 
-        ::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-thumb { background: var(--accent); }
     </style>
 </head>
 <body>
 
-<div id="bg-canvas"></div>
+<div id="bg-grid"></div>
 <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Batman_Logo.svg" class="bat-logo">
 
-<div id="os-interface">
+<nav>
+    <div class="nav-btn active" id="btn-main" onclick="switchView('main')">COMMAND_CENTER</div>
+    <div class="nav-btn" id="btn-cal" onclick="switchView('cal')">MISSION_CALENDAR</div>
+    <div style="flex:1"></div>
+    <div id="clock">00:00:00</div>
+</nav>
+
+<div id="view-main" class="view active">
     <section class="panel">
-        <h2>SCHEDULER</h2>
-        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
-            <input type="text" id="tName" placeholder="任务代号...">
-            <input type="date" id="tDate">
-            <select id="tCycle">
-                <option value="once">ONCE</option>
-                <option value="1">DAILY</option>
-                <option value="3">3-DAYS</option>
-            </select>
-            <button onclick="deploy()">DEPLOY</button>
-        </div>
-        <div class="task-list" id="tList"></div>
+        <h2>MISSION_DEPLOY</h2>
+        <input type="text" id="tName" placeholder="任务代号 (OBJ_NAME)...">
+        <input type="date" id="tDate">
+        <select id="tCycle">
+            <option value="once">ONCE (单次)</option>
+            <option value="1">DAILY (每日)</option>
+            <option value="3">3-DAYS (3日循环)</option>
+        </select>
+        <button onclick="deploy()">ACTIVATE MISSION</button>
+        <h2 style="margin-top:30px;">ACTIVE_LOGS</h2>
+        <div id="tLogs" style="flex:1; overflow-y:auto;"></div>
     </section>
 
-    <section class="panel" style="border:none; background:transparent; justify-content:center; align-items:center;">
-        <div id="clock">00:00:00</div>
-        <div style="font-size:0.7rem; opacity:0.6; margin-top:10px;">GABBY'S NEURAL LINK ACTIVE</div>
+    <section style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+        <div style="letter-spacing:10px; opacity:0.4; font-size:0.8rem;">WAYNE ENTERPRISE</div>
+        <div style="margin-top:20px; font-size:0.7rem; color:var(--accent); border:1px solid var(--accent); padding:5px 15px;">GABBY'S NEURAL LINK : ONLINE</div>
     </section>
 
     <section class="panel">
-        <h2>ENCRYPTED_COMMS</h2>
+        <h2>COMMUNICATIONS</h2>
         <div id="chat-flow">
-            <div class="message msg-bw">
-                <span class="msg-meta">WAYNE_PRIVATE 02:50 AM</span>
-                Bruce: 链接已锁定。Gabby，我已将你的医疗和战术数据权限提升至最高级别。
+            <div class="msg bw">
+                <span class="msg-ts">SYSTEM START</span>
+                Bruce: 链接已重置。Gabby，所有战术协议已准备就绪。
             </div>
         </div>
-        <div style="display:flex; gap:5px;">
-            <input type="text" id="uMsg" placeholder="汇报或交流..." style="flex:1;" onkeypress="if(event.key==='Enter') send()">
-            <button onclick="send()">SEND</button>
+        <div style="display:flex; gap:8px; border-top:1px solid var(--dim); padding-top:15px;">
+            <input type="text" id="uInput" placeholder="汇报或询问..." style="flex:1; margin:0;" onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()" style="margin:0; padding:0 20px;">SEND</button>
         </div>
     </section>
 </div>
 
-<script>
-    // 深度 AI 回复库 (针对 Gabby 优化)
-    const responses = {
-        medical: [
-            "Gabby，阿福已经监测到你的生理指标异常。立刻停止工作，喝杯热茶。",
-            "我不是开玩笑的，Gabby。如果你不休息，我会远程锁定你的终端。",
-            "身体是完成理想的唯一前提。去睡一觉，Gabby。"
-        ],
-        tactical: [
-            "分析中... 线索已经归档。Gabby，保持对这些细节的敏锐度。",
-            "做得好。我会追踪这部分的后续证据。你专注于核心目标。",
-            "证据链正在补全。Gabby，你总是能发现我忽视的东西。"
-        ],
-        emotional: [
-            "晚安，Gabby。明天会有更艰巨的任务在等你。",
-            "不客气。能和你共事也是我的荣幸，Gabby。",
-            "哪怕是在最黑暗的时候，Gabby，记住你并不孤单。"
-        ],
-        default: [
-            "收到。我会保持监控。",
-            "确认。Gabby，数据已上传至韦恩庄园数据库。",
-            "正在听。有什么发现吗？",
-            "保持专注，Gabby。我们离真相不远了。"
-        ]
-    };
+<div id="view-cal" class="view">
+    <section class="panel" style="grid-column: 1 / 4;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2>MONTHLY_TACTICAL_PROJECTION</h2>
+            <div style="font-size:0.7rem;">APRIL 2026</div>
+        </div>
+        <div class="cal-container" id="calContainer"></div>
+    </section>
+</div>
 
+<script>
+    let missions = [];
+
+    // 1. 视图切换逻辑
+    function switchView(mode) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        if(mode === 'main') {
+            document.getElementById('view-main').classList.add('active');
+            document.getElementById('btn-main').classList.add('active');
+        } else {
+            document.getElementById('view-cal').classList.add('active');
+            document.getElementById('btn-cal').classList.add('active');
+            renderCalendar();
+            post('bw', "Bruce: 正在扫描时间轴，Gabby。");
+        }
+    }
+
+    // 2. 任务部署逻辑
+    function deploy() {
+        const name = document.getElementById('tName').value;
+        const date = document.getElementById('tDate').value;
+        const cycle = document.getElementById('tCycle').value;
+        if(!name || !date) return;
+
+        missions.push({ name, date, cycle });
+        updateLogs();
+        post('bw', `Gabby，"${name}" 任务已同步至全息日历。`);
+        document.getElementById('tName').value = "";
+    }
+
+    function updateLogs() {
+        const log = document.getElementById('tLogs');
+        log.innerHTML = missions.map(m => `
+            <div style="border-left:2px solid var(--accent); padding:10px; margin-bottom:10px; background:rgba(0,255,255,0.03); font-size:0.8rem;">
+                <strong>${m.name}</strong><br><small>${m.date} | ${m.cycle}</small>
+            </div>
+        `).join('');
+    }
+
+    // 3. 日历渲染逻辑
+    function renderCalendar() {
+        const container = document.getElementById('calContainer');
+        container.innerHTML = "";
+        const now = new Date();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const today = now.getDate();
+
+        for(let i=1; i<=daysInMonth; i++) {
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+            const cellMissions = missions.filter(m => m.date === dateStr);
+            
+            const cell = document.createElement('div');
+            cell.className = `cal-cell ${i === today ? 'today' : ''}`;
+            cell.innerHTML = `
+                <span class="cal-num">${i}</span>
+                ${cellMissions.map(m => `<span class="cal-mark">${m.name}</span>`).join('')}
+            `;
+            container.appendChild(cell);
+        }
+    }
+
+    // 4. 增强型沟通系统 (Gabby 专用)
     function send() {
-        const input = document.getElementById('uMsg');
+        const input = document.getElementById('uInput');
         const text = input.value.trim();
         if(!text) return;
 
         post('user', text);
         input.value = "";
 
-        // 智能关键词分析
         setTimeout(() => {
-            let res;
+            let res = "收到，Gabby。正在处理数据。";
             const t = text.toLowerCase();
-            if(t.includes("不舒服") || t.includes("累") || t.includes("困") || t.includes("病") || t.includes("痛")) {
-                res = responses.medical[Math.floor(Math.random()*responses.medical.length)];
-            } else if(t.includes("证据") || t.includes("线索") || t.includes("敌人") || t.includes("调查") || t.includes("完成")) {
-                res = responses.tactical[Math.floor(Math.random()*responses.tactical.length)];
-            } else if(t.includes("晚安") || t.includes("谢") || t.includes("明天见") || t.includes("再见")) {
-                res = responses.emotional[Math.floor(Math.random()*responses.emotional.length)];
-            } else {
-                res = responses.default[Math.floor(Math.random()*responses.default.length)];
+            if(t.includes("累") || t.includes("休息") || t.includes("不舒服")) {
+                res = "Gabby，监测到你的疲劳值上升。这是指令：立刻休息，阿福会盯着后续的。";
+            } else if(t.includes("完成") || t.includes("汇报") || t.includes("调查")) {
+                res = "做得好，Gabby。这些线索对哥谭的案件至关重要。";
+            } else if(t.includes("晚安") || t.includes("再见")) {
+                res = "晚安，Gabby。哥谭的明天也需要你。";
             }
-            post('bw', "Bruce: " + res);
+            post('bw', `Bruce: ${res}`);
         }, 1200);
     }
 
     function post(type, text) {
         const flow = document.getElementById('chat-flow');
         const d = document.createElement('div');
-        d.className = `message msg-${type}`;
-        d.innerHTML = `<span class="msg-meta">${new Date().toLocaleTimeString()}</span>${text}`;
+        d.className = `msg ${type}`;
+        d.innerHTML = `<span class="msg-ts">${new Date().toLocaleTimeString()}</span>${text}`;
         flow.appendChild(d);
         flow.scrollTop = flow.scrollHeight;
     }
 
-    function deploy() {
-        const n = document.getElementById('tName').value;
-        const list = document.getElementById('tList');
-        if(!n) return;
-        const d = document.createElement('div');
-        d.className = 'task-entry';
-        d.innerHTML = `<strong>> ${n}</strong><br><small>ACTIVE_FOR_GABBY</small>`;
-        list.prepend(d);
-        post('bw', `Gabby，"${n}" 任务已同步。`);
-        document.getElementById('tName').value = "";
-    }
-
+    // 初始化
     setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    document.getElementById('tDate').valueAsDate = new Date();
 </script>
+
 </body>
 </html>
