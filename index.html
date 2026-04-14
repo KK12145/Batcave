@@ -1,217 +1,216 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bat Computer v14</title>
-<style>
-body{
-  margin:0;
-  background:#070a0f;
-  color:#00f0ff;
-  font-family:monospace;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
-}
-.panel{
-  flex:1;
-  padding:12px;
-  border:1px solid rgba(0,255,255,0.08);
-}
-#center{
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-#clock{
-  font-size:18px;
-  opacity:0.8;
-}
-#chatBox{
-  height:70vh;
-  overflow:auto;
-  border:1px solid rgba(0,255,255,0.15);
-  padding:8px;
-  background:rgba(0,0,0,0.3);
-}
-input,button{
-  background:#000;
-  color:#00f0ff;
-  border:1px solid #00f0ff;
-  padding:6px;
-  margin-top:6px;
-  width:100%;
-}
-.task{
-  border-bottom:1px solid rgba(0,255,255,0.15);
-  padding:4px 0;
-}
-.glow{
-  text-shadow:0 0 10px #00f0ff;
-}
-.status{
-  font-size:12px;
-  opacity:0.7;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wayne OS | Gabby's Terminal</title>
+    <style>
+        :root {
+            --accent: #00ffff; 
+            --bg: #00050a; 
+            --dim-border: rgba(0, 255, 255, 0.15);
+            --panel-bg: rgba(0, 5, 10, 0.85);
+            --glow: 0 0 15px rgba(0, 255, 255, 0.3);
+            --font-main: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+
+        body {
+            background: var(--bg);
+            color: var(--accent);
+            font-family: var(--font-main);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 动态蓝色背景 */
+        #bg-canvas {
+            position: absolute;
+            width: 100%; height: 100%;
+            background-image: radial-gradient(var(--dim-border) 1px, transparent 1px);
+            background-size: 35px 35px;
+            z-index: -1;
+        }
+
+        .bat-logo {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            opacity: 0.04;
+            filter: invert(1);
+            pointer-events: none;
+            animation: breathe 10s infinite;
+        }
+
+        @keyframes breathe { 0%, 100% { opacity: 0.02; } 50% { opacity: 0.06; } }
+
+        #os-interface {
+            width: 100%;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 340px 1fr 340px;
+            gap: 25px;
+            z-index: 10;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--dim-border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--glow);
+        }
+
+        h2 { font-size: 0.7rem; letter-spacing: 5px; border-bottom: 1px solid var(--dim-border); padding-bottom: 10px; margin-bottom: 15px; }
+
+        /* 任务系统 */
+        input, select, button {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--dim-border);
+            color: var(--accent);
+            padding: 12px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; border: none; }
+        button:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        .task-list { flex: 1; overflow-y: auto; }
+        .task-entry { border-left: 2px solid var(--accent); padding: 10px; margin-bottom: 10px; background: rgba(0, 255, 255, 0.02); }
+
+        /* 深度沟通系统 */
+        #chat-flow { flex: 1; overflow-y: auto; margin-bottom: 15px; }
+        .message { margin-bottom: 15px; font-size: 0.85rem; line-height: 1.6; }
+        .msg-bw { color: var(--accent); }
+        .msg-user { color: #fff; text-align: right; }
+        .msg-meta { font-size: 0.6rem; opacity: 0.4; display: block; }
+
+        #clock { font-size: 2.2rem; font-weight: bold; text-shadow: 0 0 10px var(--accent); }
+
+        ::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); }
+    </style>
 </head>
 <body>
 
-<div class="panel">
-<h3 class="glow">TASK ENGINE</h3>
-<input id="taskInput" placeholder="输入任务">
-<button onclick="addTask()">ADD TASK</button>
-<div id="tasks"></div>
-</div>
+<div id="bg-canvas"></div>
+<img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Batman_Logo.svg" class="bat-logo">
 
-<div class="panel" id="center">
-<h2 class="glow">BAT SYSTEM v14</h2>
-<div id="clock"></div>
-<div class="status" id="status">SYSTEM ONLINE</div>
-</div>
+<div id="os-interface">
+    <section class="panel">
+        <h2>SCHEDULER</h2>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+            <input type="text" id="tName" placeholder="任务代号...">
+            <input type="date" id="tDate">
+            <select id="tCycle">
+                <option value="once">ONCE</option>
+                <option value="1">DAILY</option>
+                <option value="3">3-DAYS</option>
+            </select>
+            <button onclick="deploy()">DEPLOY</button>
+        </div>
+        <div class="task-list" id="tList"></div>
+    </section>
 
-<div class="panel">
-<h3 class="glow">ENCRYPTED COMMS</h3>
-<div id="chatBox"></div>
-<input id="userInput" placeholder="输入指令...">
-<button onclick="sendMessage()">SEND</button>
+    <section class="panel" style="border:none; background:transparent; justify-content:center; align-items:center;">
+        <div id="clock">00:00:00</div>
+        <div style="font-size:0.7rem; opacity:0.6; margin-top:10px;">GABBY'S NEURAL LINK ACTIVE</div>
+    </section>
+
+    <section class="panel">
+        <h2>ENCRYPTED_COMMS</h2>
+        <div id="chat-flow">
+            <div class="message msg-bw">
+                <span class="msg-meta">WAYNE_PRIVATE 02:50 AM</span>
+                Bruce: 链接已锁定。Gabby，我已将你的医疗和战术数据权限提升至最高级别。
+            </div>
+        </div>
+        <div style="display:flex; gap:5px;">
+            <input type="text" id="uMsg" placeholder="汇报或交流..." style="flex:1;" onkeypress="if(event.key==='Enter') send()">
+            <button onclick="send()">SEND</button>
+        </div>
+    </section>
 </div>
 
 <script>
-// =========================
-// EVENT BUS (v14核心升级)
-// =========================
-const EventBus = {
-  events: {},
-  on(event, fn){
-    this.events[event] = this.events[event] || [];
-    this.events[event].push(fn);
-  },
-  emit(event, data){
-    (this.events[event]||[]).forEach(fn=>fn(data));
-  }
-};
+    // 深度 AI 回复库 (针对 Gabby 优化)
+    const responses = {
+        medical: [
+            "Gabby，阿福已经监测到你的生理指标异常。立刻停止工作，喝杯热茶。",
+            "我不是开玩笑的，Gabby。如果你不休息，我会远程锁定你的终端。",
+            "身体是完成理想的唯一前提。去睡一觉，Gabby。"
+        ],
+        tactical: [
+            "分析中... 线索已经归档。Gabby，保持对这些细节的敏锐度。",
+            "做得好。我会追踪这部分的后续证据。你专注于核心目标。",
+            "证据链正在补全。Gabby，你总是能发现我忽视的东西。"
+        ],
+        emotional: [
+            "晚安，Gabby。明天会有更艰巨的任务在等你。",
+            "不客气。能和你共事也是我的荣幸，Gabby。",
+            "哪怕是在最黑暗的时候，Gabby，记住你并不孤单。"
+        ],
+        default: [
+            "收到。我会保持监控。",
+            "确认。Gabby，数据已上传至韦恩庄园数据库。",
+            "正在听。有什么发现吗？",
+            "保持专注，Gabby。我们离真相不远了。"
+        ]
+    };
 
-// =========================
-// CLOCK
-// =========================
-setInterval(()=>{
-  document.getElementById('clock').innerText = new Date().toLocaleString();
-},1000);
+    function send() {
+        const input = document.getElementById('uMsg');
+        const text = input.value.trim();
+        if(!text) return;
 
-// =========================
-// TASK SYSTEM (STATE MACHINE)
-// =========================
-let tasks = [];
+        post('user', text);
+        input.value = "";
 
-function addTask(){
-  const val = document.getElementById('taskInput').value;
-  if(!val) return;
+        // 智能关键词分析
+        setTimeout(() => {
+            let res;
+            const t = text.toLowerCase();
+            if(t.includes("不舒服") || t.includes("累") || t.includes("困") || t.includes("病") || t.includes("痛")) {
+                res = responses.medical[Math.floor(Math.random()*responses.medical.length)];
+            } else if(t.includes("证据") || t.includes("线索") || t.includes("敌人") || t.includes("调查") || t.includes("完成")) {
+                res = responses.tactical[Math.floor(Math.random()*responses.tactical.length)];
+            } else if(t.includes("晚安") || t.includes("谢") || t.includes("明天见") || t.includes("再见")) {
+                res = responses.emotional[Math.floor(Math.random()*responses.emotional.length)];
+            } else {
+                res = responses.default[Math.floor(Math.random()*responses.default.length)];
+            }
+            post('bw', "Bruce: " + res);
+        }, 1200);
+    }
 
-  const task = {
-    id: Date.now(),
-    title: val,
-    status: 'PENDING'
-  };
+    function post(type, text) {
+        const flow = document.getElementById('chat-flow');
+        const d = document.createElement('div');
+        d.className = `message msg-${type}`;
+        d.innerHTML = `<span class="msg-meta">${new Date().toLocaleTimeString()}</span>${text}`;
+        flow.appendChild(d);
+        flow.scrollTop = flow.scrollHeight;
+    }
 
-  tasks.push(task);
-  renderTasks();
-  EventBus.emit('TASK_CREATED', task);
-}
+    function deploy() {
+        const n = document.getElementById('tName').value;
+        const list = document.getElementById('tList');
+        if(!n) return;
+        const d = document.createElement('div');
+        d.className = 'task-entry';
+        d.innerHTML = `<strong>> ${n}</strong><br><small>ACTIVE_FOR_GABBY</small>`;
+        list.prepend(d);
+        post('bw', `Gabby，"${n}" 任务已同步。`);
+        document.getElementById('tName').value = "";
+    }
 
-function renderTasks(){
-  const el = document.getElementById('tasks');
-  el.innerHTML = '';
-
-  tasks.forEach(t=>{
-    const div = document.createElement('div');
-    div.className='task';
-    div.innerText = `[${t.status}] ${t.title}`;
-    div.onclick = ()=>toggleTask(t.id);
-    el.appendChild(div);
-  });
-}
-
-function toggleTask(id){
-  const t = tasks.find(x=>x.id===id);
-  if(!t) return;
-  t.status = t.status === 'DONE' ? 'PENDING' : 'DONE';
-  renderTasks();
-  EventBus.emit('TASK_UPDATED', t);
-}
-
-// =========================
-// CHAT MEMORY (v14升级)
-// =========================
-let memory = [];
-
-function logChat(role,msg){
-  const box = document.getElementById('chatBox');
-  box.innerHTML += `<div><b>${role}:</b> ${msg}</div>`;
-  box.scrollTop = box.scrollHeight;
-
-  memory.push({role,content:msg});
-  if(memory.length>20) memory.shift();
-}
-
-// =========================
-// AI BACKEND CALL (安全代理模式)
-// =========================
-async function sendMessage(){
-  const input = document.getElementById('userInput');
-  const msg = input.value;
-  if(!msg) return;
-
-  input.value='';
-  logChat('YOU',msg);
-
-  EventBus.emit('USER_MESSAGE', msg);
-
-  const res = await fetch('/chat', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      messages:[
-        {
-          role:'system',
-          content:'你是布鲁斯·韦恩（Batman），冷静、简短、战略性思考，会根据用户状态调整语气'
-        },
-        ...memory
-      ]
-    })
-  });
-
-  const data = await res.json();
-  const reply = data.choices?.[0]?.message?.content || 'NO SIGNAL';
-
-  logChat('BRUCE', reply);
-  EventBus.emit('AI_RESPONSE', reply);
-}
-
-// =========================
-// EVENT DRIVEN BEHAVIOR
-// =========================
-EventBus.on('TASK_CREATED', (t)=>{
-  document.getElementById('status').innerText = 'NEW TASK REGISTERED';
-});
-
-EventBus.on('TASK_UPDATED', ()=>{
-  document.getElementById('status').innerText = 'TASK STATE MODIFIED';
-});
-
-EventBus.on('USER_MESSAGE', (msg)=>{
-  if(msg.includes('累')){
-    document.getElementById('status').innerText = 'USER FATIGUE DETECTED';
-  }
-});
-
-EventBus.on('AI_RESPONSE', ()=>{
-  document.getElementById('status').innerText = 'COMMS ACTIVE';
-});
-
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
-
 </body>
 </html>
