@@ -3,231 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wayne OS | Terminal</title>
+    <title>Wayne OS | Tactical Terminal</title>
     <style>
         :root {
             --accent: #00ff41;
-            --bg: #050505;
-            --dim: #003311;
+            --bg: #030503;
+            --dim-accent: #003311;
+            --panel-bg: rgba(0, 10, 0, 0.8);
         }
 
         body {
             background: var(--bg);
             color: var(--accent);
-            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-family: 'Consolas', 'Segoe UI', monospace;
             margin: 0;
             display: flex;
             height: 100vh;
             overflow: hidden;
-            letter-spacing: 1px;
         }
 
-        /* 动态点阵背景 */
-        body::before {
-            content: "";
-            position: absolute;
-            width: 100%; height: 100%;
-            background-image: radial-gradient(var(--dim) 1px, transparent 1px);
-            background-size: 25px 25px;
-            opacity: 0.3;
-            z-index: -1;
-        }
-
-        /* 呼吸蝙蝠标志 */
+        /* 蝙蝠标志背景 */
         .bat-logo {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 400px;
-            opacity: 0.05;
+            width: 450px;
+            opacity: 0.04;
             filter: invert(1);
-            animation: breathe 5s infinite ease-in-out;
+            animation: pulse 6s infinite ease-in-out;
             pointer-events: none;
+            z-index: 0;
         }
 
-        @keyframes breathe {
+        @keyframes pulse {
             0%, 100% { opacity: 0.03; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.08; transform: translate(-50%, -50%) scale(1.05); }
+            50% { opacity: 0.07; transform: translate(-50%, -50%) scale(1.08); }
         }
 
-        /* 布局 */
-        #container {
+        #terminal-layout {
             display: grid;
-            grid-template-columns: 350px 1fr 350px;
+            grid-template-columns: 380px 1fr 350px;
             width: 100%;
-            padding: 40px;
-            gap: 40px;
+            padding: 30px;
+            gap: 30px;
             z-index: 1;
         }
 
-        section { display: flex; flex-direction: column; gap: 20px; }
-        .glass-panel { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); padding: 20px; border-left: 1px solid var(--accent); }
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--dim-accent);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
 
-        h2 { font-size: 0.7rem; text-transform: uppercase; margin: 0 0 15px 0; opacity: 0.6; }
+        h2 { font-size: 0.75rem; text-transform: uppercase; margin: 0 0 20px 0; border-left: 3px solid var(--accent); padding-left: 10px; opacity: 0.8; }
 
-        /* 任务设置增强 */
-        .input-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        /* 输入组件 */
+        .control-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .row { display: flex; gap: 8px; }
         input, select, button {
-            background: rgba(0, 255, 65, 0.05);
-            border: 1px solid var(--dim);
+            background: rgba(0, 255, 65, 0.03);
+            border: 1px solid var(--dim-accent);
             color: var(--accent);
-            padding: 12px;
+            padding: 10px;
             font-size: 0.8rem;
             outline: none;
         }
-        button { background: var(--accent); color: black; font-weight: bold; cursor: pointer; border: none; }
-        button:hover { background: white; }
+        input:focus { border-color: var(--accent); }
+        button { background: var(--accent); color: black; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #fff; box-shadow: 0 0 15px var(--accent); }
 
-        /* 列表显示 */
-        .task-item {
-            border-bottom: 1px solid var(--dim);
-            padding: 10px 0;
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
+        /* 任务列表 */
+        #mission-feed { flex: 1; overflow-y: auto; font-size: 0.8rem; }
+        .mission-item {
+            border-bottom: 1px solid var(--dim-accent);
+            padding: 12px 0;
+            animation: fadeIn 0.5s ease;
         }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .mission-meta { font-size: 0.65rem; color: #888; margin-top: 4px; }
 
-        /* 沟通系统 (Chat) */
-        #chat-window {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            font-size: 0.85rem;
-            padding-right: 10px;
-        }
-        .msg { margin-bottom: 10px; line-height: 1.4; }
+        /* 对话系统 */
+        #chat-flow { flex: 1; overflow-y: auto; padding-right: 5px; }
+        .msg { margin-bottom: 15px; font-size: 0.85rem; line-height: 1.4; }
         .msg.bw { color: var(--accent); }
-        .msg.me { color: #fff; text-align: right; }
-        .timestamp { font-size: 0.6rem; opacity: 0.5; display: block; }
+        .msg.user { color: #fff; text-align: right; }
+        .msg span { font-size: 0.6rem; opacity: 0.5; display: block; margin-bottom: 4px; }
 
-        #reply-input { margin-top: 10px; }
-
-        /* 滚动条 */
-        ::-webkit-scrollbar { width: 2px; }
-        ::-webkit-scrollbar-thumb { background: var(--accent); }
+        /* 隐藏步数输入框直到需要 */
+        #custom-days-row { display: none; }
     </style>
 </head>
 <body>
 
     <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Batman_Logo.svg" class="bat-logo">
 
-    <div id="container">
-        <section class="glass-panel">
-            <h2>Tactical Scheduling</h2>
-            <div class="input-row">
-                <input type="text" id="taskName" placeholder="任务代号...">
-                <div style="display:flex; gap:5px;">
-                    <input type="date" id="taskDate" style="flex:1;">
-                    <select id="taskPriority" style="width:80px;">
-                        <option value="!">低</option>
-                        <option value="!!">中</option>
-                        <option value="!!!">高</option>
+    <div id="terminal-layout">
+        <section class="panel">
+            <h2>Mission Scheduler</h2>
+            <div class="control-group">
+                <input type="text" id="taskName" placeholder="任务代号 (OBJECTIVE)...">
+                
+                <div class="row">
+                    <input type="date" id="startDate" style="flex: 1;">
+                    <select id="priority">
+                        <option value="NORMAL">常规</option>
+                        <option value="CRITICAL">紧急</option>
                     </select>
                 </div>
-                <select id="taskFreq">
-                    <option value="once">单次部署</option>
-                    <option value="1">每日循环</option>
-                    <option value="3">3日巡检</option>
-                    <option value="7">每周例行</option>
+
+                <select id="freq" onchange="toggleCustomFreq()">
+                    <option value="once">单次执行 (ONCE)</option>
+                    <option value="1">每日循环 (DAILY)</option>
+                    <option value="3">3日巡检 (3-DAY)</option>
+                    <option value="custom">自定循环 (CUSTOM)</option>
                 </select>
-                <button onclick="deployTask()">DEPLOY MISSION</button>
+
+                <div id="custom-days-row" class="row">
+                    <input type="number" id="customVal" placeholder="输入循环天数..." style="flex: 1;" min="1">
+                </div>
+
+                <button onclick="deploy()">DEPLOY MISSION</button>
             </div>
-            <h2>Active Feed</h2>
-            <div id="taskList"></div>
+
+            <h2>Active Objectives</h2>
+            <div id="mission-feed"></div>
         </section>
 
-        <section style="justify-content: center; align-items: center; border:none;">
-            <div style="text-align: center; opacity: 0.4; font-size: 0.7rem;">
-                <p>GOTHAM CITY SURVEILLANCE SYSTEM</p>
-                <p id="liveTime">00:00:00</p>
+        <section style="display:flex; flex-direction:column; justify-content:space-between; align-items:center; border:none; padding-bottom: 50px;">
+            <div style="font-size: 0.7rem; opacity: 0.5; text-align: center; letter-spacing: 5px;">
+                WAYNE ENTERPRISES SECURE TERMINAL
             </div>
+            <div style="text-align: center;">
+                <h1 id="clock" style="font-size: 3rem; margin:0; font-weight: 100;">00:00:00</h1>
+                <div id="date-display" style="opacity: 0.6;">2026.04.14</div>
+            </div>
+            <div style="font-size: 0.6rem; opacity: 0.3;">STATUS: ENCRYPTED // LINK: BATCAVE_MAIN</div>
         </section>
 
-        <section class="glass-panel">
-            <h2>Encrypted Comms (B.W.)</h2>
-            <div id="chat-window">
+        <section class="panel">
+            <h2>Comms Link (B.W.)</h2>
+            <div id="chat-flow">
                 <div class="msg bw">
-                    <span class="timestamp">02:30 AM</span>
-                    Bruce: 链接已建立。凯恩，报告你的当前状态。
+                    <span>02:30 AM</span>
+                    Bruce: 信号已加密。正在等待任务简报。
                 </div>
             </div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="replyText" placeholder="回复布鲁斯..." style="flex:1;" onkeypress="if(event.key==='Enter') sendReply()">
-                <button onclick="sendReply()" style="padding:0 15px;">SEND</button>
+            <div class="row" style="margin-top: 15px;">
+                <input type="text" id="userInput" placeholder="输入回复..." style="flex:1;" onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()" style="padding: 0 15px;">SEND</button>
             </div>
         </section>
     </div>
 
 <script>
-    // 布鲁斯的台词库
-    const bwResponses = [
-        "收到。保持专注，不要被琐事干扰。",
-        "哥谭不需要英雄，需要结果。继续努力。",
-        "如果压力太大，去阿福那里喝杯茶。这是指令。",
-        "我会处理掉外围的麻烦。你专注于眼前的目标。",
-        "做得很好。蝙蝠洞的数据正在同步。"
-    ];
+    // 初始化日期
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').value = today;
+    document.getElementById('date-display').innerText = today.replace(/-/g, '.');
 
-    // 更新时间
-    setInterval(() => {
-        document.getElementById('liveTime').innerText = new Date().toLocaleTimeString();
-    }, 1000);
-
-    // 部署任务
-    function deployTask() {
-        const name = document.getElementById('taskName');
-        const date = document.getElementById('taskDate');
-        const prio = document.getElementById('taskPriority');
-        const list = document.getElementById('taskList');
-
-        if(!name.value) return;
-
-        const item = document.createElement('div');
-        item.className = 'task-item';
-        item.innerHTML = `
-            <span>${prio.value} ${name.value}</span>
-            <span style="opacity:0.5">${date.value.split('-').slice(1).join('/')}</span>
-        `;
-        list.prepend(item);
-        
-        addMessage('bw', "任务已载入主板。我会实时追踪。");
-        name.value = "";
+    function toggleCustomFreq() {
+        const freq = document.getElementById('freq').value;
+        document.getElementById('custom-days-row').style.display = (freq === 'custom') ? 'flex' : 'none';
     }
 
-    // 发送回复
-    function sendReply() {
-        const input = document.getElementById('replyText');
+    // 部署任务逻辑
+    function deploy() {
+        const name = document.getElementById('taskName').value;
+        const start = document.getElementById('startDate').value;
+        const freq = document.getElementById('freq').value;
+        const customVal = document.getElementById('customVal').value;
+        const priority = document.getElementById('priority').value;
+
+        if(!name) return;
+
+        let interval = freq === 'custom' ? customVal : freq;
+        let freqText = freq === 'once' ? "单次" : `每 ${interval} 天`;
+
+        const feed = document.getElementById('mission-feed');
+        const item = document.createElement('div');
+        item.className = 'mission-item';
+        item.innerHTML = `
+            <div>[${priority}] ${name}</div>
+            <div class="mission-meta">起始: ${start} | 周期: ${freqText}</div>
+            <div class="mission-meta" style="color:var(--accent); cursor:pointer;" onclick="this.parentElement.remove()">> 中止任务</div>
+        `;
+        feed.prepend(item);
+
+        addChat('bw', `任务 "${name}" 已同步。起始时间 ${start}，我会监控进度。`);
+        document.getElementById('taskName').value = "";
+    }
+
+    // 通讯系统
+    const bwReplies = [
+        "收到报告。保持警惕。",
+        "这是必要的牺牲。继续推进。",
+        "我会联络戈登局长处理外围。你继续。",
+        "专注目标，凯恩。不要被恐惧左右。",
+        "完成得不错。阿福为你留了备用装备。"
+    ];
+
+    function sendMessage() {
+        const input = document.getElementById('userInput');
         const text = input.value.trim();
         if(!text) return;
 
-        addMessage('me', text);
+        addChat('user', text);
         input.value = "";
 
-        // 模拟布鲁斯延迟回复
         setTimeout(() => {
-            const reply = bwResponses[Math.floor(Math.random() * bwResponses.length)];
-            addMessage('bw', `Bruce: ${reply}`);
-        }, 1500);
+            const reply = bwReplies[Math.floor(Math.random() * bwReplies.length)];
+            addChat('bw', `Bruce: ${reply}`);
+        }, 1200);
     }
 
-    function addMessage(sender, text) {
-        const window = document.getElementById('chat-window');
-        const msgDiv = document.createElement('div');
+    function addChat(sender, text) {
+        const chat = document.getElementById('chat-flow');
+        const msg = document.createElement('div');
         const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        msgDiv.className = `msg ${sender}`;
-        msgDiv.innerHTML = `<span class="timestamp">${time}</span>${text}`;
-        window.appendChild(msgDiv);
-        window.scrollTop = window.scrollHeight;
+        msg.className = `msg ${sender}`;
+        msg.innerHTML = `<span>${time}</span>${text}`;
+        chat.appendChild(msg);
+        chat.scrollTop = chat.scrollHeight;
     }
 
-    // 初始随机通讯
+    // 时钟
     setInterval(() => {
-        if(Math.random() > 0.7) {
-            addMessage('bw', "Bruce: " + bwResponses[Math.floor(Math.random() * bwResponses.length)]);
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
+    }, 1000);
+
+    // 随机主动通讯
+    setInterval(() => {
+        if(Math.random() > 0.8) {
+            addChat('bw', "Bruce: " + bwReplies[Math.floor(Math.random() * bwReplies.length)]);
         }
-    }, 60000);
+    }, 45000);
 </script>
 </body>
 </html>
